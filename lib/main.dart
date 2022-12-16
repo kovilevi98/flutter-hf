@@ -51,17 +51,11 @@ class MyApp extends StatelessWidget {
       navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
       //DO NOT MODIFY
       debugShowCheckedModeBanner: false,
-      onGenerateRoute: (settings) {
-        final arguments = settings.arguments;
-        switch (settings.name) {
-          case '/':
-            return
-                MaterialPageRoute(builder: (context) => LoginPageProvider());
-          case '/list':
-            return  MaterialPageRoute(builder: (context) => ListPageProvider(token: arguments as String));
-          default:
-            MaterialPageRoute(builder: (context) => LoginPageProvider());
-        }
+      routes: {
+        // When navigating to the "/" route, build the FirstScreen widget.
+        '/': (context) => const LoginPageProvider(),
+        // When navigating to the "/second" route, build the SecondScreen widget.
+        '/list': (context) => const ListPageProvider(),
       },
     );
   }

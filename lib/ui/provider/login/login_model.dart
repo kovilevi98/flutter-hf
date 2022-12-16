@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_homework/ui/provider/data/data.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
@@ -20,6 +21,7 @@ class LoginModel extends ChangeNotifier{
   var isLoading = false;
 
   Future login(String email, String password, bool rememberMe) async {
+    isLoading = true;
       try{
         final Map<String, String> data = {
           "email": email,
@@ -30,12 +32,20 @@ class LoginModel extends ChangeNotifier{
           data: data,
         );
 
-        if(rememberMe){
-          GetIt.I<SharedPreferences>().setString("token", response.data['token']);
+        if(response.data != null){
+          Data().token = response.data['token'];
+          if(rememberMe){
+            GetIt.I<SharedPreferences>().setString("token", response.data['token']);
+            GetIt.I<SharedPreferences>().setString("email", email);
+            GetIt.I<SharedPreferences>().setString("password", password);
+          }
+          isLoading = false;
+          return response.data['token'];
         }
-        return response.data['token'];
+
       }on DioError catch(e){
-        print(e);
+        //print(e);
+        isLoading = false;
         throw LoginException(e.response!.data["message"]);
       }
 
@@ -51,18 +61,32 @@ class LoginModel extends ChangeNotifier{
 
   Future<bool> tryAutoLogin() async {
     var token = GetIt.I<SharedPreferences>().getString("token");
+    var email = GetIt.I<SharedPreferences>().getString("email");
+    var password = GetIt.I<SharedPreferences>().getString("password");
     if(token == null || token == ""){
+      return false;
+    }
+
+    if(email == null || email == ""){
+      return false;
+    }
+
+    if(password == null || password == ""){
       return false;
     }
     try{
       final Map<String, String> data = {
-        "token": token
+        "email": email,
+        "password": password
       };
       var _dio = GetIt.I<Dio>();
       Response response = await _dio.post("/login",
         data: data,
       );
-      return response.data["token"];
+
+      //GetIt.I<SharedPreferences>().setString("token", response.data['token']);
+      Data().token = response.data['token'];
+      return true;
     }on DioError catch(e){
       return false;
       print(e);

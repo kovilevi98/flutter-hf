@@ -17,18 +17,22 @@ class ListException extends Equatable implements Exception {
 class ListModel extends ChangeNotifier{
   var isLoading = false;
   var users = <UserItem>[];
+  var token = "";
 
-  Future loadUsers(String token) async {
+  Future loadUsers() async {
     try{
+      isLoading = true;
       var _dio = GetIt.I<Dio>();
       _dio.options.headers['Authorization'] = 'Bearer ' + token;
       Response response = await _dio.get("/users");
-      var data = response.data as List<Map<String, String>>;
+      var data = response.data; //as List<Map<String, String>>;
       data.forEach((element) {
         users.add(UserItem(element["name"]!, element["avatarUrl"]!));
       });
+      isLoading = false;
     }on DioError catch(e){
       print(e);
+      isLoading = false;
       throw ListException(e.response!.data["message"]);
     }
 

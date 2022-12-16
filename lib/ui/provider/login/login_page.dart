@@ -30,7 +30,7 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
     });
       var result = await model.tryAutoLogin();
       if(result){
-        Navigator.pushReplacementNamed(context, '/list', arguments: result);
+        Navigator.pushReplacementNamed(context, '/list');
       }
       setState(() {
         model.isLoading = false;
@@ -155,7 +155,7 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
                           if(valid){
                            try{
                              var token = await model.login(emailCtrl.text, passwordCtrl.text, checkedValue);
-                             Navigator.pushReplacementNamed(context, '/list', arguments: token);
+                             Navigator.pushReplacementNamed(context, '/list');
                            } on LoginException catch(e){
                              ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(e.message)));
                            }

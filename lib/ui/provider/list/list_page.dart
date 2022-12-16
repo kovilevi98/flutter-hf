@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_homework/ui/provider/data/data.dart';
 import 'package:flutter_homework/ui/provider/list/list_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ListPageProvider extends StatefulWidget {
-  String token;
-  ListPageProvider({Key? key, required this.token}) : super(key: key);
+  const ListPageProvider({Key? key}) : super(key: key);
 
   @override
   State<ListPageProvider> createState() => _ListPageProviderState();
@@ -26,7 +26,9 @@ class _ListPageProviderState extends State<ListPageProvider> {
     });
 
     try{
-      var result = await model.loadUsers(widget.token);
+      //model.token = GetIt.I<SharedPreferences>().getString("token")!;
+      model.token = Data().token!; //GetIt.I<SharedPreferences>().getString("temp")!;//"ACCESS_TOKEN";//
+      var result = await model.loadUsers();
     }  on ListException catch(e){
       ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(e.message)));
     }
@@ -41,11 +43,11 @@ class _ListPageProviderState extends State<ListPageProvider> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Lista"),
-        leading: BackButton(
-        onPressed: (){
-            var token = GetIt.I<SharedPreferences>().setString("token", "");
+        leading: IconButton( 
+          onPressed: (){
+            GetIt.I<SharedPreferences>().clear();
             Navigator.pushReplacementNamed(context, '/');
-        },),
+          }, icon: Icon(Icons.arrow_back, color: Colors.white,),),
       ),
       body: (model.isLoading) ? Center(child: const CircularProgressIndicator()) :SingleChildScrollView(
         child: Column(
