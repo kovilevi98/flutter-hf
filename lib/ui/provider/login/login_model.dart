@@ -21,6 +21,7 @@ class LoginModel extends ChangeNotifier{
   var isLoading = false;
 
   Future login(String email, String password, bool rememberMe) async {
+    if(isLoading) return;
     isLoading = true;
       try{
         final Map<String, String> data = {
@@ -36,8 +37,6 @@ class LoginModel extends ChangeNotifier{
           Data().token = response.data['token'];
           if(rememberMe){
             GetIt.I<SharedPreferences>().setString("token", response.data['token']);
-            GetIt.I<SharedPreferences>().setString("email", email);
-            GetIt.I<SharedPreferences>().setString("password", password);
           }
           isLoading = false;
           return response.data['token'];
@@ -60,24 +59,17 @@ class LoginModel extends ChangeNotifier{
   }
 
   bool tryAutoLogin() {
+    if(isLoading) return false;
+
     isLoading = true;
     var token = GetIt.I<SharedPreferences>().getString("token");
-    var email = GetIt.I<SharedPreferences>().getString("email");
-    var password = GetIt.I<SharedPreferences>().getString("password");
+    //var email = GetIt.I<SharedPreferences>().getString("email");
+    //var password = GetIt.I<SharedPreferences>().getString("password");
     if(token == null || token == ""){
       isLoading = false;
       return false;
     }
 
-    if(email == null || email == ""){
-      isLoading = false;
-      return false;
-    }
-
-    if(password == null || password == ""){
-      isLoading = false;
-      return false;
-    }
       Data().token = token;
       isLoading = false;
       return true;

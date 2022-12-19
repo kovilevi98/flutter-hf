@@ -20,6 +20,7 @@ class ListModel extends ChangeNotifier{
   var token = "";
 
   Future loadUsers() async {
+    if(isLoading) return;
     try{
       isLoading = true;
       var _dio = GetIt.I<Dio>();
