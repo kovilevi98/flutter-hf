@@ -30,6 +30,7 @@ Future configureFixDependencies() async {
   GetIt.I.registerSingleton(dio);
   GetIt.I.registerSingleton(await SharedPreferences.getInstance());
   GetIt.I.registerSingleton(<NavigatorObserver>[]);
+
 }
 
 //Add custom dependencies if necessary

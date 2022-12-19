@@ -20,21 +20,18 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
 
   @override
   void initState() {
-    _onPageInitialization();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onPageInitialization();
+    });
+
   }
 
   _onPageInitialization() async {
-    setState(() {
-      model.isLoading = true;
-    });
-      var result = await model.tryAutoLogin();
+      var result = model.tryAutoLogin();
       if(result){
         Navigator.pushReplacementNamed(context, '/list');
       }
-      setState(() {
-        model.isLoading = false;
-      });
   }
 
   @override

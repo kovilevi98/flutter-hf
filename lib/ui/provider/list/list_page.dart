@@ -27,7 +27,12 @@ class _ListPageProviderState extends State<ListPageProvider> {
 
     try{
       //model.token = GetIt.I<SharedPreferences>().getString("token")!;
-      model.token = Data().token!; //GetIt.I<SharedPreferences>().getString("temp")!;//"ACCESS_TOKEN";//
+      var token;
+      if(Data().token != null){
+        model.token = Data().token!;////
+      } else {
+        //GetIt.I<SharedPreferences>().getString("token")!;//"ACCESS_TOKEN";
+      }
       var result = await model.loadUsers();
     }  on ListException catch(e){
       ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(e.message)));

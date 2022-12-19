@@ -59,41 +59,27 @@ class LoginModel extends ChangeNotifier{
     return pass.length >= 6;
   }
 
-  Future<bool> tryAutoLogin() async {
+  bool tryAutoLogin() {
+    isLoading = true;
     var token = GetIt.I<SharedPreferences>().getString("token");
     var email = GetIt.I<SharedPreferences>().getString("email");
     var password = GetIt.I<SharedPreferences>().getString("password");
     if(token == null || token == ""){
+      isLoading = false;
       return false;
     }
 
     if(email == null || email == ""){
+      isLoading = false;
       return false;
     }
 
     if(password == null || password == ""){
+      isLoading = false;
       return false;
     }
-    try{
-      final Map<String, String> data = {
-        "email": email,
-        "password": password
-      };
-      var _dio = GetIt.I<Dio>();
-      Response response = await _dio.post("/login",
-        data: data,
-      );
-
-      //GetIt.I<SharedPreferences>().setString("token", response.data['token']);
-      Data().token = response.data['token'];
+      Data().token = token;
+      isLoading = false;
       return true;
-    }on DioError catch(e){
-      return false;
-      print(e);
-      throw LoginException(e.response!.data["message"]);
-    } catch(e){
-      return false;
-    }
-
   }
 }
