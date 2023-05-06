@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_homework/ui/provider/data/data.dart';
 import 'package:flutter_homework/ui/provider/list/list_model.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ListPageProvider extends StatefulWidget {
@@ -12,35 +12,20 @@ class ListPageProvider extends StatefulWidget {
 }
 
 class _ListPageProviderState extends State<ListPageProvider> {
-  var model = ListModel();
-
   @override
   void initState() {
-    _onPageInitialization();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _onPageInitialization();
+    });
   }
 
   _onPageInitialization() async {
-    setState(() {
-      model.isLoading = true;
-    });
-
     try{
-      //model.token = GetIt.I<SharedPreferences>().getString("token")!;
-      var token;
-      if(Data().token != null){
-        model.token = Data().token!;////
-      } else {
-        //GetIt.I<SharedPreferences>().getString("token")!;//"ACCESS_TOKEN";
-      }
-      var result = await model.loadUsers();
+       var result = await Provider.of<ListModel>(context, listen: false).loadUsers();
     }  on ListException catch(e){
-      ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(e.message)));
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(e.message)));
     }
-
-    setState(() {
-      model.isLoading = false;
-    });
   }
 
   @override
@@ -54,11 +39,11 @@ class _ListPageProviderState extends State<ListPageProvider> {
             Navigator.pushReplacementNamed(context, '/');
           }, icon: Icon(Icons.arrow_back, color: Colors.white,),),
       ),
-      body: (model.isLoading) ? Center(child: const CircularProgressIndicator()) :SingleChildScrollView(
+      body: (Provider.of<ListModel>(context).isLoading) ? Center(child: const CircularProgressIndicator()) :SingleChildScrollView(
         child: Column(
           children: [
             ...List.generate(
-              model.users.length,
+              Provider.of<ListModel>(context).users.length,
                   (index) => Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -70,11 +55,11 @@ class _ListPageProviderState extends State<ListPageProvider> {
                           CircleAvatar(
                             radius: 30.0,
                             backgroundImage:
-                            NetworkImage(model.users[index].avatarUrl),
+                            NetworkImage(Provider.of<ListModel>(context).users[index].avatarUrl),
                             backgroundColor: Colors.transparent,
                           ),
                           SizedBox(width: 15,),
-                          Text(model.users[index].name),
+                          Text(Provider.of<ListModel>(context).users[index].name),
                         ],
                       ),
                     ),

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_homework/ui/provider/data/data.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
@@ -22,7 +21,7 @@ class LoginModel extends ChangeNotifier{
 
   Future login(String email, String password, bool rememberMe) async {
     if(isLoading) return;
-    isLoading = true;
+    changeLoading(true);
       try{
         final Map<String, String> data = {
           "email": email,
@@ -34,28 +33,23 @@ class LoginModel extends ChangeNotifier{
         );
 
         if(response.data != null){
-          Data().token = response.data['token'];
           if(rememberMe){
             GetIt.I<SharedPreferences>().setString("token", response.data['token']);
           }
-          isLoading = false;
+          changeLoading(false);
           return response.data['token'];
         }
 
       }on DioError catch(e){
-        //print(e);
-        isLoading = false;
+        changeLoading(false);
         throw LoginException(e.response!.data["message"]);
       }
-
+    changeLoading(false);
   }
 
-  bool validateEmail(String email){
-    return isEmail(email);
-  }
-
-  bool validatePass(String pass){
-    return pass.length >= 6;
+  changeLoading(bool value) {
+    isLoading = value;
+    notifyListeners();
   }
 
   bool tryAutoLogin() {
@@ -63,14 +57,11 @@ class LoginModel extends ChangeNotifier{
 
     isLoading = true;
     var token = GetIt.I<SharedPreferences>().getString("token");
-    //var email = GetIt.I<SharedPreferences>().getString("email");
-    //var password = GetIt.I<SharedPreferences>().getString("password");
     if(token == null || token == ""){
       isLoading = false;
       return false;
     }
 
-      Data().token = token;
       isLoading = false;
       return true;
   }

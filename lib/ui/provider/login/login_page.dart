@@ -1,6 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_homework/ui/provider/list/list_model.dart';
+import 'package:flutter_homework/ui/provider/list/list_page.dart';
 import 'package:flutter_homework/ui/provider/login/login_model.dart';
+import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:validators/validators.dart';
 
 class LoginPageProvider extends StatefulWidget {
   const LoginPageProvider({super.key});
@@ -16,22 +22,25 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
   String? emailError;
   String? passError;
 
-  final model = LoginModel();
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _onPageInitialization();
     });
-
   }
 
   _onPageInitialization() async {
-      var result = model.tryAutoLogin();
-      if(result){
-        Navigator.pushReplacementNamed(context, '/list');
-      }
+    var result = Provider.of<LoginModel>(context, listen: false).tryAutoLogin();
+    if (result) {
+      var token = GetIt.I<SharedPreferences>().getString("token");
+      Provider.of<ListModel>(context, listen: false).token = token!;
+      //Navigator.pushReplacementNamed(context, '/list');
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => ListPageProvider()));
+    }
   }
 
   @override
@@ -43,24 +52,23 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Login",
-              style: Theme.of(context)
-                  .textTheme
-                  .headline2
-                  ?.copyWith(color: Colors.black)),
+              Text("Login",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline2
+                      ?.copyWith(color: Colors.black)),
               SizedBox(
                 height: 15,
               ),
-              TextFormField(
+              TextField(
                 textAlignVertical: TextAlignVertical.center,
                 controller: emailCtrl,
-                enabled: !model.isLoading,
+                enabled: !Provider.of<LoginModel>(context).isLoading,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.emailAddress,
                 textCapitalization: TextCapitalization.none,
                 autocorrect: false,
-                onChanged: (s){
+                onChanged: (s) {
                   setState(() {
                     emailError = null;
                   });
@@ -79,16 +87,16 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
               SizedBox(
                 height: 15,
               ),
-              TextFormField(
+              TextField(
                 textAlignVertical: TextAlignVertical.center,
                 controller: passwordCtrl,
-                enabled: !model.isLoading,
+                enabled: !Provider.of<LoginModel>(context).isLoading,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.visiblePassword,
                 obscureText: true,
                 textCapitalization: TextCapitalization.none,
                 autocorrect: false,
-                onChanged: (s){
+                onChanged: (s) {
                   setState(() {
                     passError = null;
                   });
@@ -109,16 +117,17 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
                 children: [
                   Checkbox(
                       side: BorderSide(color: Colors.black),
-                      onChanged: model.isLoading ? (s){} : (newValue) {
-                        setState(() {
-                          checkedValue = !checkedValue;
-                        });
-                      },
+                      onChanged: Provider.of<LoginModel>(context).isLoading
+                          ? (s) {}
+                          : (newValue) {
+                              setState(() {
+                                checkedValue = !checkedValue;
+                              });
+                            },
                       value: checkedValue),
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
-                    child: Text(
-                        "Remember me",
+                    child: Text("Remember me",
                         style: Theme.of(context)
                             .textTheme
                             .headline6
@@ -130,37 +139,54 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                        onPressed: model.isLoading ? (){} :  () async {
-                          bool valid = true;
-                          if (!model.validateEmail(emailCtrl.text)) {
-                            setState(() {
-                              emailError = "The Email address is invalid";
-                            });
-                            valid = false;
-                          }
-                          if (!model.validatePass(passwordCtrl.text)) {
-                            setState(() {
-                              passError = "The Password is not strong enough";
-                            });
-                            valid = false;
-                          }
+                        onPressed: Provider.of<LoginModel>(context).isLoading
+                            ? () {}
+                            : () async {
+                                bool valid = true;
+                                if (!validateEmail(emailCtrl.text)) {
+                                  setState(() {
+                                    emailError = "The Email address is invalid";
+                                  });
+                                  valid = false;
+                                }
+                                if (!validatePass(passwordCtrl.text)) {
+                                  setState(() {
+                                    passError =
+                                        "The Password is not strong enough";
+                                  });
+                                  valid = false;
+                                }
 
-                          FocusScope.of(context).unfocus();
-                          setState(() {
-                           model.isLoading = true;
-                          });
-                          if(valid){
-                           try{
-                             var token = await model.login(emailCtrl.text, passwordCtrl.text, checkedValue);
-                             Navigator.pushReplacementNamed(context, '/list');
-                           } on LoginException catch(e){
-                             ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text(e.message)));
-                           }
-                          }
-                          setState(() {
-                            model.isLoading = false;
-                          });
-                        },
+                                FocusScope.of(context).unfocus();
+                                if (valid) {
+                                  try {
+                                    var token = await Provider.of<LoginModel>(
+                                            context,
+                                            listen: false)
+                                        .login(emailCtrl.text,
+                                            passwordCtrl.text, checkedValue);
+                                    if (token != null && token != '') {
+                                      //Provider.of<Data>(context, listen: false).changeToken(token);
+                                      Provider.of<ListModel>(context,
+                                              listen: false)
+                                          .token = token;
+                                    }
+                                    //Navigator.pushReplacementNamed(context, '/list');
+                                    // ignore: use_build_context_synchronously
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                ChangeNotifierProvider(
+                                                    create: (context) => ListModel(),
+                                                    child:
+                                                        ListPageProvider())));
+                                  } on LoginException catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(e.message)));
+                                  }
+                                }
+                              },
                         child: const Text("Login")),
                   )
                 ],
@@ -175,5 +201,14 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  bool validateEmail(String email) {
+    print(email);
+    return isEmail(email);
+  }
+
+  bool validatePass(String pass) {
+    return pass.length >= 6;
   }
 }

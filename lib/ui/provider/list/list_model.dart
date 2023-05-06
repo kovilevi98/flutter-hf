@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_homework/network/user_item.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ListException extends Equatable implements Exception {
   final String message;
@@ -17,25 +16,30 @@ class ListException extends Equatable implements Exception {
 class ListModel extends ChangeNotifier{
   var isLoading = false;
   var users = <UserItem>[];
-  var token = "";
+  String? token;
 
   Future loadUsers() async {
     if(isLoading) return;
     try{
-      isLoading = true;
+      changeLoading(true);
       var _dio = GetIt.I<Dio>();
-      _dio.options.headers['Authorization'] = 'Bearer ' + token;
+      _dio.options.headers['Authorization'] = 'Bearer ${token ?? ""}';
       Response response = await _dio.get("/users");
       var data = response.data; //as List<Map<String, String>>;
       data.forEach((element) {
         users.add(UserItem(element["name"]!, element["avatarUrl"]!));
       });
-      isLoading = false;
+      changeLoading(false);
     }on DioError catch(e){
       print(e);
-      isLoading = false;
+      changeLoading(false);
       throw ListException(e.response!.data["message"]);
     }
-
   }
+
+  changeLoading(bool value) {
+    isLoading = value;
+    notifyListeners();
+  }
+
 }

@@ -2,10 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/network/data_source_interceptor.dart';
+import 'package:flutter_homework/ui/provider/list/list_model.dart';
 import 'package:flutter_homework/ui/provider/list/list_page.dart';
+import 'package:flutter_homework/ui/provider/login/login_model.dart';
 import 'package:flutter_homework/ui/provider/login/login_page.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 //DO NOT MODIFY
@@ -30,34 +33,42 @@ Future configureFixDependencies() async {
   GetIt.I.registerSingleton(dio);
   GetIt.I.registerSingleton(await SharedPreferences.getInstance());
   GetIt.I.registerSingleton(<NavigatorObserver>[]);
-
 }
 
 //Add custom dependencies if necessary
-Future configureCustomDependencies() async {
-
-}
+Future configureCustomDependencies() async {}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<LoginModel>(
+          create: (_) => LoginModel(),
+        ),
+        ChangeNotifierProvider<ListModel >(
+          create: (_) => ListModel() ,
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        //DO NOT MODIFY
+        navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
+        //DO NOT MODIFY
+        debugShowCheckedModeBanner: false,
+        home: LoginPageProvider(),
+        /*routes: {
+          '/': (context) =>
+            const LoginPageProvider(),
+          '/list': (context) =>
+                const ListPageProvider()
+        },*/
       ),
-      //DO NOT MODIFY
-      navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
-      //DO NOT MODIFY
-      debugShowCheckedModeBanner: false,
-      routes: {
-        // When navigating to the "/" route, build the FirstScreen widget.
-        '/': (context) => const LoginPageProvider(),
-        // When navigating to the "/second" route, build the SecondScreen widget.
-        '/list': (context) => const ListPageProvider(),
-      },
     );
   }
 }
