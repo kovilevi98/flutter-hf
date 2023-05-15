@@ -43,32 +43,48 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<LoginModel>(
-          create: (_) => LoginModel(),
-        ),
-        ChangeNotifierProvider<ListModel >(
-          create: (_) => ListModel() ,
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        //DO NOT MODIFY
-        navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
-        //DO NOT MODIFY
-        debugShowCheckedModeBanner: false,
-        home: LoginPageProvider(),
-        /*routes: {
-          '/': (context) =>
-            const LoginPageProvider(),
-          '/list': (context) =>
-                const ListPageProvider()
-        },*/
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      //DO NOT MODIFY
+      navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
+      //DO NOT MODIFY
+      debugShowCheckedModeBanner: false,
+      //home: LoginPageProvider(),
+      initialRoute: '/',
+      routes: {
+          '/': (context) =>
+              ChangeNotifierProvider(
+                  create: (_) => LoginModel(), child: const LoginPageProvider()),
+          '/list': (context) =>
+              ChangeNotifierProvider(
+                  create: (_) => ListModel(), child: const ListPageProvider())
+        },
+      onGenerateRoute: (RouteSettings settings) {
+        final String? name = settings.name;
+        if (name == '/') {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (context) => ChangeNotifierProvider(
+                create: (_) => LoginModel(), child: const LoginPageProvider()),
+          );
+        } else {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (context) => ChangeNotifierProvider(
+                create: (_) => ListModel(), child: const ListPageProvider())
+          );
+        }
+      },
+      onUnknownRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
+            settings: settings,
+            builder: (context) => ChangeNotifierProvider(
+                create: (_) => ListModel(), child: const ListPageProvider())
+        );
+      },
     );
   }
 }

@@ -16,14 +16,12 @@ class ListException extends Equatable implements Exception {
 class ListModel extends ChangeNotifier{
   var isLoading = false;
   var users = <UserItem>[];
-  String? token;
 
   Future loadUsers() async {
     if(isLoading) return;
     try{
       changeLoading(true);
       var _dio = GetIt.I<Dio>();
-      _dio.options.headers['Authorization'] = 'Bearer ${token ?? ""}';
       Response response = await _dio.get("/users");
       var data = response.data; //as List<Map<String, String>>;
       data.forEach((element) {

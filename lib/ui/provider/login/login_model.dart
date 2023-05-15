@@ -32,6 +32,7 @@ class LoginModel extends ChangeNotifier{
           data: data,
         );
 
+        GetIt.I<Dio>().options.headers['authorization'] = 'Bearer ${response.data['token'] ?? ""}';
         if(response.data != null){
           if(rememberMe){
             GetIt.I<SharedPreferences>().setString("token", response.data['token']);

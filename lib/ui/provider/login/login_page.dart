@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_homework/ui/provider/list/list_model.dart';
@@ -34,12 +35,12 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
     var result = Provider.of<LoginModel>(context, listen: false).tryAutoLogin();
     if (result) {
       var token = GetIt.I<SharedPreferences>().getString("token");
-      Provider.of<ListModel>(context, listen: false).token = token!;
-      //Navigator.pushReplacementNamed(context, '/list');
-      Navigator.pushReplacement(
+      GetIt.I<Dio>().options.headers['authorization'] = 'Bearer ${token ?? ""}';
+      Navigator.pushReplacementNamed(context, '/list');
+     /* Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (BuildContext context) => ListPageProvider()));
+              builder: (BuildContext context) => ListPageProvider()));*/
     }
   }
 
@@ -165,22 +166,13 @@ class _LoginPageProviderState extends State<LoginPageProvider> {
                                             listen: false)
                                         .login(emailCtrl.text,
                                             passwordCtrl.text, checkedValue);
-                                    if (token != null && token != '') {
-                                      //Provider.of<Data>(context, listen: false).changeToken(token);
-                                      Provider.of<ListModel>(context,
-                                              listen: false)
-                                          .token = token;
-                                    }
-                                    //Navigator.pushReplacementNamed(context, '/list');
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.pushReplacement(
-                                        context,
+                                    /*Navigator.pushReplacement(context,
                                         MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                ChangeNotifierProvider(
-                                                    create: (context) => ListModel(),
-                                                    child:
-                                                        ListPageProvider())));
+                                            builder: (BuildContext context) {
+                                      return ListPageProvider();
+                                    }));*/
+                                    Navigator.of(context).pushReplacementNamed('/list');
+
                                   } on LoginException catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text(e.message)));
