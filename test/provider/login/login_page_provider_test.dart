@@ -13,7 +13,7 @@ class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 void main() {
   testWidgets('tryAutoLogin is called on page load [1]', (tester) async {
     var model = MockLoginModel();
-    when(() => model.tryAutoLogin()).thenReturn(false);
+    when(() => model.tryAutoLogin()).thenAnswer((_) => Future.value(false));
     when(() => model.isLoading).thenReturn(false);
     await tester.pumpWidget(
       MaterialApp(
@@ -37,13 +37,14 @@ void main() {
             var model = MockLoginModel();
             when(() => model.login(any(), any(), any())).thenAnswer((_) async => null);
             when(() => model.isLoading).thenReturn(false);
-            when(() => model.tryAutoLogin()).thenReturn(false);
+            when(() => model.tryAutoLogin()).thenAnswer((_) => Future.value(false));
             await tester.pumpWidget(
               MaterialApp(
                 home: ChangeNotifierProvider<LoginModel>.value(
                   value: model,
                   child: const LoginPageProvider(),
                 ),
+                routes: {'/list' : (_) => Container()}
               ),
             );
             await tester.enterText(find.byType(TextField).first, email);
@@ -62,7 +63,7 @@ void main() {
 
   testWidgets('Fields are disabled in loading state [1]', (tester) async {
     var model = MockLoginModel();
-    when(() => model.tryAutoLogin()).thenReturn(false);
+    when(() => model.tryAutoLogin()).thenAnswer((_) => Future.value(false));
     when(() => model.isLoading).thenReturn(true);
     await tester.pumpWidget(
       MaterialApp(
@@ -85,7 +86,7 @@ void main() {
     var email = 'a@a.com';
     var password = 'password';
 
-    when(() => model.tryAutoLogin()).thenReturn(false);
+    when(() => model.tryAutoLogin()).thenAnswer((_) => Future.value(false));
     when(() => model.isLoading).thenReturn(false);
     when(() => model.login(any(), any(), any())).thenAnswer((_) async => null);
     await tester.pumpWidget(
@@ -120,7 +121,7 @@ void main() {
         var model = MockLoginModel();
         var email = 'a@a.com';
         var password = 'password';
-        when(() => model.tryAutoLogin()).thenReturn(false);
+        when(() => model.tryAutoLogin()).thenAnswer((_) => Future.value(false));
         when(() => model.isLoading).thenReturn(false);
         when(() => model.login(any(), any(), any())).thenAnswer((_) async => throw LoginException(errorMessage));
         await tester.pumpWidget(

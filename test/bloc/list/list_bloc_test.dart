@@ -56,7 +56,7 @@ void main() {
     build: () => ListBloc(),
     act: (bloc) => bloc.add(ListLoadEvent()),
     setUp: () {
-      when(() => GetIt.I<Dio>().get('/users')).thenAnswer(
+      when(() => GetIt.I<Dio>().get('/users', options: any(named: 'options'))).thenAnswer(
             (_) async =>
             Response(
               data: [

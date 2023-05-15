@@ -15,7 +15,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Journey through the completed app [2]', (tester) async {
-    await SharedPreferences.getInstance().then((value) => value.clear());
+    SharedPreferences.setMockInitialValues({});
     await loadAppFonts();
     await tester.binding.setSurfaceSize(const Size(400, 640));
 

@@ -38,7 +38,7 @@ void main() {
     when(() => GetIt.I<SharedPreferences>().getString(any()))
         .thenReturn('token');
 
-    expect(model.tryAutoLogin(), true);
+    expect(model.tryAutoLogin(), completion(true));
     verify(() => GetIt.I<SharedPreferences>().getString(any()));
   });
 
@@ -48,7 +48,7 @@ void main() {
     when(() => GetIt.I<SharedPreferences>().containsKey(any()))
         .thenReturn(false);
 
-    expect(model.tryAutoLogin(), false);
+    expect(model.tryAutoLogin(), completion(false));
   });
 
   test('login does nothing when isLoading is true [1]', () async {

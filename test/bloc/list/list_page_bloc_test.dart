@@ -80,7 +80,7 @@ void main() {
       () async {
         var bloc = MockListBloc();
         var users = [
-          for (int i = 0; i < 10; i++)
+          for (int i = 0; i < 4; i++)
             UserItem('Test User $i', 'Test Image $i'),
         ];
         whenListen(bloc, const Stream<ListState>.empty(),

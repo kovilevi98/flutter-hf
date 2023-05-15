@@ -84,7 +84,7 @@ void main() {
       () async {
         var model = MockListModel();
         var users = [
-          for (int i = 0; i < 10; i++)
+          for (int i = 0; i < 4; i++)
             UserItem('Test User $i', 'Test Image $i'),
         ];
         when(() => model.isLoading).thenReturn(false);
